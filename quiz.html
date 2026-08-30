@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Portal - Quiz Game</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)), url('https://unsplash.com') center/cover fixed; color: #f8fafc; }
+        nav { background: rgba(30, 41, 59, 0.8); padding: 15px; display: flex; justify-content: center; gap: 20px; backdrop-filter: blur(10px); }
+        nav a { color: #38bdf8; text-decoration: none; font-weight: bold; padding: 8px 16px; border-radius: 4px; }
+        nav a:hover, nav a.active { background: #0284c7; color: white; }
+        .quiz-container { width: 100%; max-width: 650px; background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 35px; border-radius: 16px; margin: 40px auto; position: relative; overflow: hidden; }
+        .progress-container { position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: rgba(255,255,255,0.1); }
+        .progress-bar { height: 100%; width: 0%; background: #38bdf8; transition: width 0.3s ease; }
+        h1 { text-align: center; font-size: 26px; margin-top: 10px; color: #38bdf8; }
+        .quiz-info { display: flex; justify-content: space-between; font-size: 14px; color: #94a3b8; margin-bottom: 25px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px; align-items: center; }
+        .timer-box { background: #ef4444; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; }
+        .question-box { font-size: 18px; font-weight: 600; margin-bottom: 25px; min-height: 55px; }
+        .options-list { display: flex; flex-direction: column; gap: 15px; }
+        .option-item { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); padding: 14px 20px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .option-item:hover { background: rgba(56, 189, 248, 0.15); border-color: #38bdf8; transform: translateX(5px); }
+        .disabled { pointer-events: none; }
+        .correct { background: rgba(34, 197, 94, 0.2) !important; border-color: #22c55e !important; color: #4ade80 !important; }
+        .wrong { background: rgba(239, 68, 68, 0.2) !important; border-color: #ef4444 !important; color: #f87171 !important; }
+        .footer-buttons { display: flex; justify-content: flex-end; margin-top: 30px; }
+        .btn { padding: 12px 24px; font-size: 15px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; background: #0284c7; color: white; }
+        .result-screen { text-align: center; }
+        .score-text { font-size: 22px; margin: 20px 0; color: #4ade80; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html">🖥️ Basic Info</a>
+        <a href="os.html">💿 Operating System</a>
+        <a href="qa.html">❓ Q&A Notes</a>
+        <a href="quiz.html" class="active">🎮 Live Quiz Game</a>
+        <a href="contact.html">📞 Contact Us</a>
+    </nav>
+
+    <div class="quiz-container" id="quizBox">
+        <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+        <h1>🖥️ Computer Science Quiz</h1>
+        <div class="quiz-info">
+            <span>Question: <b id="qNumber">1 / 5</b></span>
+            <div class="timer-box">Time Left: <span id="timerDisplay">15</span>s</div>
+            <span>Score: <b id="scoreDisplay">0</b></span>
+        </div>
+        <div class="question-box" id="questionText">Loading first question...</div>
+        <div class="options-list" id="optionsContainer"></div>
+        <div class="footer-buttons">
+            <button class="btn" id="nextBtn" onclick="nextQuestion()" disabled>Next Question ➔</button>
+        </div>
+    </div>
+
+<script>
+    // [वही जावास्क्रिप्ट लॉजिक जो पिछले संदेश में था]
+    const quizData = [
+        { question: "Q1. Which of the following is known as the 'Brain' of a computer system?", options: ["RAM", "HDD", "CPU", "GPU"], correct: 2 },
+        { question: "Q2. What is the permanent memory built into your computer called?", options: ["RAM", "ROM", "CPU", "CD-ROM"], correct: 1 },
+        { question: "Q3. One Kilobyte (1 KB) is equal to how many Bytes?", options: ["1000 Bytes", "1024 Bytes", "100 Bytes", "1048 Bytes"], correct: 1 },
+        { question: "Q4. Which computer language is written in binary codes only?", options: ["Machine Language", "C Programming", "HTML", "Java"], correct: 0 },
+        { question: "Q5. Who is known as the father of Computers?", options: ["Bill Gates", "Alan Turing", "Charles Babbage", "Tim Berners-Lee"], correct: 2 }
+    ];
+
+    let currentQuestionIndex = 0; let score = 0; let timeLeft = 15; let timerInterval; let audioCtx = null;
+    const questionText = document.getElementById('questionText'); const optionsContainer = document.getElementById('optionsContainer');
+    const qNumber = document.getElementById('qNumber'); const scoreDisplay = document.getElementById('scoreDisplay');
+    const nextBtn = document.getElementById('nextBtn'); const timerDisplay = document.getElementById('timerDisplay'); const progressBar = document.getElementById('progressBar');
+
+    function playSound(type) {
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
+            if (type === 'correct') { oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime); oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.1); }
+            else { oscillator.frequency.setValueAtTime(250, audioCtx.currentTime); gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime); oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.2); }
+        } catch (e) {}
+    }
+    function startTimer() { timeLeft = 15; timerDisplay.innerText = timeLeft; clearInterval(timerInterval); timerInterval = setInterval(() => { timeLeft--; timerDisplay.innerText = timeLeft; if (timeLeft <= 0) { clearInterval(timerInterval); handleTimeOut(); } }, 1000); }
+    function handleTimeOut() { playSound('wrong'); let currentQuiz = quizData[currentQuestionIndex]; let allOptions = optionsContainer.children; for (let i = 0; i < allOptions.length; i++) allOptions[i].classList.add('disabled'); allOptions[currentQuiz.correct].classList.add('correct'); nextBtn.disabled = false; }
+    function loadQuiz() { nextBtn.disabled = true; startTimer(); let currentQuiz = quizData[currentQuestionIndex]; let progressPercent = (currentQuestionIndex / quizData.length) * 100; progressBar.style.width = `${progressPercent}%`; qNumber.innerText = `${currentQuestionIndex + 1} / ${quizData.length}`; questionText.innerText = currentQuiz.question; optionsContainer.innerHTML = ''; currentQuiz.options.forEach((option, index) => { const optionDiv = document.createElement('div'); optionDiv.classList.add('option-item'); optionDiv.innerText = option; optionDiv.setAttribute('onclick', `selectOption(this, ${index})`); optionsContainer.appendChild(optionDiv); }); }
+    function selectOption(element, selectedIndex) { clearInterval(timerInterval); let currentQuiz = quizData[currentQuestionIndex]; let allOptions = optionsContainer.children; for (let i = 0; i < allOptions.length; i++) allOptions[i].classList.add('disabled'); if (selectedIndex === currentQuiz.correct) { element.classList.add('correct'); playSound('correct'); score += 10; scoreDisplay.innerText = score; } else { element.classList.add('wrong'); allOptions[currentQuiz.correct].classList.add('correct'); playSound('wrong'); } nextBtn.disabled = false; }
+    function nextQuestion() { currentQuestionIndex++; if (currentQuestionIndex < quizData.length) { loadQuiz(); } else { progressBar.style.width = '100%'; showResults(); } }
+    function showResults() { clearInterval(timerInterval); const quizBox = document.getElementById('quizBox'); let totalPossibleScore = quizData.length * 10; quizBox.innerHTML = `<div class="result-screen"><h2>🎉 Quiz Completed!</h2><p class="score-text">Your Final Score: ${score} / ${totalPossibleScore}</p><button class="btn" onclick="location.reload()">Restart Quiz</button></div>`; }
+    window.onload = loadQuiz;
+</script>
+</body>
+</html>

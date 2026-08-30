@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Portal - Home</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0;
+            background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)), 
+                        url('https://unsplash.com') center/cover fixed;
+            color: #f8fafc;
+        }
+        /* नेविगेशन बार / मेनू */
+        nav { background: rgba(30, 41, 59, 0.8); padding: 15px; display: flex; justify-content: center; gap: 20px; backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        nav a { color: #38bdf8; text-decoration: none; font-weight: bold; padding: 8px 16px; border-radius: 4px; transition: 0.3s; }
+        nav a:hover, nav a.active { background: #0284c7; color: white; }
+        
+        .container { max-width: 800px; margin: 40px auto; background: rgba(30, 41, 59, 0.7); padding: 35px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
+        h1 { color: #38bdf8; text-align: center; }
+        h2 { color: #22c55e; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
+        p { line-height: 1.6; color: #cbd5e1; }
+        ul { color: #cbd5e1; line-height: 1.8; }
+    </style>
+</head>
+<body>
+
+    <!-- सभी पेजों को जोड़ने वाला मेनू बार -->
+    <nav>
+        <a href="index.html" class="active">🖥️ Basic Info</a>
+        <a href="os.html">💿 Operating System</a>
+        <a href="qa.html">❓ Q&A Notes</a>
+        <a href="quiz.html">🎮 Live Quiz Game</a>
+        <a href="contact.html">📞 Contact Us</a>
+    </nav>
+
+    <div class="container">
+        <h1>Welcome to Computer Science Portal</h1>
+        <p>A computer is an electronic device that manipulates information, or data. It has the ability to store, retrieve, and process data. You may already know that you can use a computer to type documents, send email, play games, and browse the Web.</p>
+        
+        <h2>Core Components of a Computer</h2>
+        <ul>
+            <li><strong>Hardware:</strong> The physical parts of a computer that you can see and touch (CPU, RAM, Motherboard, Keyboard, Mouse).</li>
+            <li><strong>Software:</strong> A set of instructions or programs that tells the hardware what to do (Web browsers, Games, Operating Systems).</li>
+        </ul>
+
+        <h2>Input vs Output Devices</h2>
+        <p><strong>Input Devices:</strong> Used to send data to the computer (e.g., Keyboard, Mouse, Scanner, Microphone).</p>
+        <p><strong>Output Devices:</strong> Used to show or send data out of the computer (e.g., Monitor, Printer, Speakers, Headphones).</p>
+    </div>
+
+</body>
+</html>
